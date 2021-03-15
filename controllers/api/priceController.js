@@ -38,7 +38,17 @@ const priceController = {
       })
       .catch(next)
   },
-  getPrice: () => {},
+  getPrice: (req, res, next) => {
+    const { id } = req.params
+    Price.findByPk(id)
+      .then((price) => {
+        if (!price) {
+          return res.status(400).json({ message: "This price doesn't exist" })
+        }
+        return res.json(price)
+      })
+      .catch(next)
+  },
   updatePrice: () => {},
   deletePrice: () => {}
 }
