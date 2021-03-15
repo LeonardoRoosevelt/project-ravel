@@ -33,7 +33,40 @@ const productController = {
       return res.json(product)
     })
   },
-  updateProduct: () => {},
+  updateProduct: (req, res, next) => {
+    const { id } = req.params
+    const { name, quantity } = req.body
+    return Product.findByPk(id)
+      .then((product) => {
+        if (!product) {
+          return res.status(400).json({ message: "This product doesn't exist." })
+        }
+        if (quantity < 0) {
+          return res.status(400).json({ message: "The quantity can't be less than zero." })
+        }
+        if (name) {
+          return Product.findAll({
+            where: { [Op.and]: [{ id: { [Op.ne]: id } }, { name: { [Op.eq]: name } }] }
+          }).then((np) => {
+            if (np && np.length > 0) {
+              return res.status(400).json({ message: 'This name already exist.' })
+            }
+            return product
+              .update({
+                name: !name ? product.name : name,
+                quantity: !quantity ? product.quantity : quantity
+              })
+              .then((product) => {
+                return res.json({ message: 'Product updated successfully', product })
+              })
+          })
+        }
+        return product.update({ quantity: !quantity ? product.quantity : quantity }).then((product) => {
+          return res.json({ message: 'Product updated successfully', product })
+        })
+      })
+      .catch(next)
+  },
   deleteProduct: () => {},
   searchProducts: () => {}
 }
