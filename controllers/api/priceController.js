@@ -49,7 +49,23 @@ const priceController = {
       })
       .catch(next)
   },
-  updatePrice: () => {},
+  updatePrice: (req, res, next) => {
+    const { id } = req.params
+    const { price } = req.body
+    if (typeof price !== 'number') {
+      return res.status(400).json({ message: 'The value must be a number.' })
+    }
+    Price.findByPk(id)
+      .then((data) => {
+        if (!data) {
+          return res.status(400).json({ message: "This price doesn't exist" })
+        }
+        return data.update({ price: !price ? data.price : price }).then((price) => {
+          return res.json({ message: 'Price updated successfully', data })
+        })
+      })
+      .catch(next)
+  },
   deletePrice: () => {}
 }
 module.exports = priceController
