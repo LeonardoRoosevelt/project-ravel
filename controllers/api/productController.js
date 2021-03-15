@@ -24,7 +24,15 @@ const productController = {
       })
       .catch(next)
   },
-  getProduct: () => {},
+  getProduct: (req, res, next) => {
+    const { id } = req.params
+    Product.findByPk(id).then((product) => {
+      if (!product) {
+        return res.status(400).json({ message: "This product doesn't exist" })
+      }
+      return res.json(product)
+    })
+  },
   updateProduct: () => {},
   deleteProduct: () => {},
   searchProducts: () => {}
