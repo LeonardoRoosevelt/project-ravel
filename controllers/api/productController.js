@@ -80,6 +80,22 @@ const productController = {
       })
       .catch(next)
   },
-  searchProducts: () => {}
+  searchProducts: (req, res, next) => {
+    const pageLimit = 10
+    let offset = 0
+    if (req.query.page) {
+      offset = (req.query.page - 1) * pageLimit
+    }
+    Product.findAndCountAll({ offset: offset, limit: pageLimit }).then((result) => {
+      const page = Number(req.query.page) || 1
+      const pages = Math.ceil(result.count / pageLimit)
+      const prev = page - 1 < 1 ? 1 : page - 1
+      const next = page + 1 > pages ? pages : page + 1
+      const data = result.rows
+      const pageDatas = result.rows.length
+      const totalData = result.count
+      return res.json({ page, pages, data, pageDatas, totalData, prev, next })
+    })
+  }
 }
 module.exports = productController
