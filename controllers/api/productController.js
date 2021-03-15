@@ -67,7 +67,19 @@ const productController = {
       })
       .catch(next)
   },
-  deleteProduct: () => {},
+  deleteProduct: (req, res, next) => {
+    const { id } = req.params
+    Product.findByPk(id)
+      .then((product) => {
+        if (!product) {
+          return res.status(400).json({ message: "This product doesn't exist." })
+        }
+        return product.destroy().then((product) => {
+          res.json({ message: 'Product is delete successfully', product })
+        })
+      })
+      .catch(next)
+  },
   searchProducts: () => {}
 }
 module.exports = productController
