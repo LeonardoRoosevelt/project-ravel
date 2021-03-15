@@ -66,6 +66,18 @@ const priceController = {
       })
       .catch(next)
   },
-  deletePrice: () => {}
+  deletePrice: (req, res, next) => {
+    const { id } = req.params
+    Price.findByPk(id)
+      .then((price) => {
+        if (!price) {
+          return res.status(400).json({ message: "This price doesn't exist." })
+        }
+        return price.destroy().then((price) => {
+          res.json({ message: 'Price is delete successfully', price })
+        })
+      })
+      .catch(next)
+  }
 }
 module.exports = priceController
