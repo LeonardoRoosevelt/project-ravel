@@ -9,8 +9,8 @@ const productController = {
     if (!id || !name || !quantity) {
       return res.status(400).json({ message: 'Please enter the value.' })
     }
-    if (quantity < 0) {
-      return res.status(400).json({ message: "The quantity can't be less than zero." })
+    if (typeof quantity !== 'number' || quantity < 0) {
+      return res.status(400).json({ message: "The value must be a number and can't be less than zero." })
     }
     Product.findOrCreate({
       where: { [Op.or]: [{ id: { [Op.eq]: id } }, { name: { [Op.eq]: name } }] },
@@ -26,12 +26,14 @@ const productController = {
   },
   getProduct: (req, res, next) => {
     const { id } = req.params
-    Product.findByPk(id).then((product) => {
-      if (!product) {
-        return res.status(400).json({ message: "This product doesn't exist" })
-      }
-      return res.json(product)
-    })
+    Product.findByPk(id)
+      .then((product) => {
+        if (!product) {
+          return res.status(400).json({ message: "This product doesn't exist" })
+        }
+        return res.json(product)
+      })
+      .catch(next)
   },
   updateProduct: (req, res, next) => {
     const { id } = req.params
@@ -41,8 +43,8 @@ const productController = {
         if (!product) {
           return res.status(400).json({ message: "This product doesn't exist." })
         }
-        if (quantity < 0) {
-          return res.status(400).json({ message: "The quantity can't be less than zero." })
+        if (typeof quantity !== 'number' || quantity < 0) {
+          return res.status(400).json({ message: "The value must be a number and can't be less than zero." })
         }
         if (name) {
           return Product.findAll({
